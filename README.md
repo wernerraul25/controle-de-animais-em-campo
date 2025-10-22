@@ -40,52 +40,6 @@ O sistema é dividido em dois componentes principais que rodam na Raspberry Pi:
 ## 4. Arquitetura do Software
 
 O software é composto por 3 partes principais que rodam na Pi.
-Claro\! Aqui está o `README.md` formatado como um bloco de código para você copiar e salvar o arquivo.
-
-```markdown
-# Sistema de Contagem de Passagem IoT
-
-Este projeto é uma solução IoT completa baseada em Raspberry Pi, desenvolvida para monitorar, contar e registrar a passagem de objetos ou animais em dois pontos independentes (A e B). O sistema fornece feedback visual local com LEDs e exibe os dados em um dashboard web em tempo real, que também permite o gerenciamento de um histórico de contagens.
-
-**Integrantes:**
-* Raul
-* Marcos
-* Guilherme
-
----
-
-## 1. Visão Geral
-
-O sistema é dividido em dois componentes principais que rodam na Raspberry Pi:
-
-1.  **Script de Hardware (`sensor.py`):** Um script Python que lê continuamente dois sensores ultrassônicos. Ao detectar uma nova passagem, ele envia um evento para o servidor web e pisca um LED correspondente.
-2.  **Aplicação Web (`app.py`):** Um servidor Flask que atua como backend e frontend. Ele recebe os eventos, armazena as contagens em um banco de dados SQLite e serve um dashboard HTML/JS para o usuário.
-
-## 2. Funcionalidades Principais
-
-* **Contagem em Tempo Real:** O dashboard exibe as contagens separadas para o "Ponto A", "Ponto B" e o "Total".
-* **Feedback Visual Imediato:** Um LED dedicado a cada sensor (LED A, LED B) pisca brevemente no momento exato em que uma nova passagem é detectada.
-* **Banco de Dados Persistente:** As contagens ao vivo são salvas em um banco de dados (SQLite), garantindo que os dados não sejam perdidos se o sistema for reiniciado.
-* **Arquivamento de Sessão:** O usuário pode clicar em um botão no dashboard para "Arquivar" a sessão atual. Isso move as contagens (A, B, Total) para uma tabela de "Histórico" e zera os contadores ao vivo.
-* **Gerenciamento do Histórico:** No mesmo dashboard, o usuário pode ver uma tabela de todas as sessões arquivadas. Ele pode:
-    * **Excluir** sessões de contagem antigas.
-    * **Adicionar/Editar anotações** (ex: "Contagem da manhã") para cada sessão salva.
-* **Correção de Fuso Horário:** O servidor é configurado para o fuso `America/Sao_Paulo`, garantindo que os timestamps no histórico estejam corretos.
-
-## 3. Hardware e Conexões (Pinos BCM)
-
-| Componente | Conexão na Raspberry Pi |
-| :--- | :--- |
-| **Sensor A** (HC-SR04) | `TRIG`: GPIO 18, `ECHO`: GPIO 24 |
-| **Sensor B** (HC-SR04) | `TRIG`: GPIO 17, `ECHO`: GPIO 27 |
-| **LED A** | `Sinal`: GPIO 22 |
-| **LED B** | `Sinal`: GPIO 23 |
-| (Sensores e LEDs) | `VCC` em 5V, `GND` em GND |
-
-## 4. Arquitetura do Software
-
-O software é composto por 3 partes principais que rodam na Pi.
-
 
 /projeto\_contagem/
 │
