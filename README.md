@@ -86,7 +86,6 @@ O sistema é dividido em dois componentes principais que rodam na Raspberry Pi:
 
 O software é composto por 3 partes principais que rodam na Pi.
 
-```
 
 /projeto\_contagem/
 │
@@ -98,7 +97,6 @@ O software é composto por 3 partes principais que rodam na Pi.
 └── /templates/
 └── index.html      \# O Dashboard web (HTML/JS/CSS)
 
-````
 
 ### `sensor.py` (O Detector)
 * Usa `RPi.GPIO` para ler os sensores A e B.
@@ -176,5 +174,4 @@ O `monitoramento.db` contém duas tabelas:
 
 6.  **Acessar o Dashboard:**
     * Em qualquer dispositivo (PC ou celular) na mesma rede Wi-Fi que a Pi, abra um navegador e acesse:
-        `http://<IP_DA_RASPBERRY_PI>:5000`
-````
+        `http://<10.1.25.46>:5000`
