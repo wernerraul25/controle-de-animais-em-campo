@@ -1,4 +1,4 @@
-# Sistema de Contagem de Passagem IoT
+# Sistema de Contagem de Passagem de Animais
 
 Este projeto é uma solução IoT completa baseada em Raspberry Pi, desenvolvida para monitorar, contar e registrar a passagem de objetos ou animais em dois pontos independentes (A e B). O sistema fornece feedback visual local com LEDs e exibe os dados em um dashboard web em tempo real, que também permite o gerenciamento de um histórico de contagens.
 
