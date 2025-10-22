@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contagem de Animais</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; background-color: #f0f2f5; 
+            text-align: center; padding: 30px;
+        }
+        h1, h2 { color: #333; }
+        
+        .container {
+            display: flex; justify-content: center; gap: 30px;
+            margin-top: 20px; flex-wrap: wrap;
+        }
+        .contador-box {
+            background-color: #fff; padding: 30px 40px; border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 250px;
+        }
+        .contador-label { font-size: 1.2em; color: #555; margin-bottom: 15px; }
+        .contador-valor { font-size: 4em; font-weight: bold; }
+        
+        #valor-a { color: #1a73e8; }
+        #valor-b { color: #e8710a; }
+        #valor-total { color: #28a745; }
+
+        .reset-container { margin-bottom: 30px; }
+        #reset-button {
+            background-color: #dc3545; color: white; border: none;
+            padding: 12px 25px; font-size: 1.1em; font-weight: bold;
+            border-radius: 5px; cursor: pointer; transition: background-color 0.3s;
+        }
+        #reset-button:hover { background-color: #c82333; }
+
+        .historico-container {
+            margin-top: 50px; background-color: #fff; padding: 20px;
+            border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: inline-block; width: 80%; min-width: 700px;
+        }
+        #historico-tabela {
+            width: 100%; border-collapse: collapse; margin-top: 15px;
+        }
+        #historico-tabela th, #historico-tabela td {
+            border: 1px solid #ddd; padding: 12px;
+            text-align: left; vertical-align: middle;
+        }
+        #historico-tabela th { background-color: #f4f4f4; color: #333; }
+
+        .anotacao-input {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-salvar-anotacao {
+            background-color: #28a745; color: white; border: none;
+            padding: 6px 10px; border-radius: 4px; cursor: pointer;
+            margin-left: 5px;
+        }
+        .btn-excluir {
+            background-color: #dc3545; color: white; border: none;
+            padding: 8px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Contagem de Animais</h1>
+    <div class="reset-container">
+        <button id="reset-button" onclick="resetarContagem()">Salvar Contagem Atual e Reiniciar</button>
+    </div>
+    
+    <div class="container">
+        <div class="contador-box">
+            <div class="contador-label">Animais no Brete A</div>
+            <div id="valor-a" class="contador-valor">0</div>
+        </div>
+        <div class="contador-box">
+            <div class="contador-label">Animais no Brete B</div>
+            <div id="valor-b" class="contador-valor">0</div>
+        </div>
+        <div class="contador-box">
+            <div class="contador-label">Total de Animais</div>
+            <div id="valor-total" class="contador-valor">0</div>
+        </div>
+    </div>
+
+    <div class="historico-container">
+        <h2>Histórico de Contagens</h2>
+        <table id="historico-tabela">
+            <thead>
+                <tr>
+                    <th>Data/Hora</th>
+                    <th>Brete A</th>
+                    <th>Brete B</th>
+                    <th>Total de Animais</th>
+                    <th>Nome da Contagem</th> <th>Ações</th>   </tr>
+            </thead>
+            <tbody id="historico-tbody">
+                </tbody>
+        </table>
+    </div>
+
+
+    <script>
+        const valorA_El = document.getElementById('valor-a');
+        const valorB_El = document.getElementById('valor-b');
+        const valorTotal_El = document.getElementById('valor-total');
+        const historicoTbody = document.getElementById('historico-tbody');
+
+        // Função principal para buscar e desenhar os dados
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // 1. Atualiza os contadores AO VIVO
+                const live = data.live;
+                valorA_El.innerText = live['Ponto A'] || 0;
+                valorB_El.innerText = live['Ponto B'] || 0;
+                valorTotal_El.innerText = live['Total'] || 0;
+
+                // 2. Atualiza a tabela de HISTÓRICO
+                const history = data.history;
+                historicoTbody.innerHTML = ''; // Limpa a tabela
+
+                if (history.length === 0) {
+                    historicoTbody.innerHTML = '<tr><td colspan="6">Nenhuma sessão arquivada ainda.</td></tr>';
+                } else {
+                    history.forEach(sessao => {
+                        const dataFormatada = new Date(sessao.data_reset).toLocaleString('pt-BR');
+                        
+                        const row = `
+                            <tr>
+                                <td>${dataFormatada}</td>
+                                <td>${sessao.contagem_ponto_a}</td>
+                                <td>${sessao.contagem_ponto_b}</td>
+                                <td><b>${sessao.contagem_total}</b></td>
+                                <td>
+                                    <input type="text" class="anotacao-input" id="anotacao-${sessao.id}" value="${sessao.anotacao || ''}" placeholder="Nome da contagem">
+                                    <button class="btn-salvar-anotacao" onclick="salvarAnotacao(${sessao.id})">Salvar</button>
+                                </td>
+                                <td>
+                                    <button class="btn-excluir" onclick="excluirSessao(${sessao.id})">Excluir</button>
+                                </td>
+                            </tr>
+                        `;
+                        historicoTbody.innerHTML += row;
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao buscar status:", error);
+            }
+        }
+
+        async function resetarContagem() {
+            if (!confirm("Você tem certeza que deseja salvar a contagem atual e reiniciar os contadores?")) {
+                return;
+            }
+            try {
+                const response = await fetch('/api/reset', { method: 'POST' });
+                const data = await response.json(); // Pega o retorno {sucesso: true, ultimo_id: X}
+                
+                if (data.sucesso) {
+                    console.log("Contagem salva e resetada.");
+                    await fetchStatus(); // Atualiza toda a UI
+                    
+                    // Se uma nova sessão foi criada, pede uma anotação
+                    if (data.ultimo_id) {
+                        const anotacao = prompt("Contagem salva! Adicione um nome:", "");
+                        if (anotacao !== null && anotacao !== "") { // Se o usuário não clicou em "Cancelar"
+                            await salvarAnotacao(data.ultimo_id, anotacao);
+                        }
+                    }
+                } else {
+                    console.error("Falha ao resetar.");
+                }
+            } catch (error) {
+                console.error("Erro de rede:", error);
+            }
+        }
+
+        async function excluirSessao(idSessao) {
+            if (!confirm(`Tem certeza que deseja excluir a contagem ${idSessao}?`)) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/historico/${idSessao}`, { method: 'DELETE' });
+                if (response.ok) {
+                    console.log(`Sessão ${idSessao} excluída.`);
+                    await fetchStatus(); // Atualiza a tabela
+                } else {
+                    console.error("Falha ao excluir.");
+                }
+            } catch (error) {
+                console.error("Erro de rede:", error);
+            }
+        }
+
+        // Pode ser chamada pelo "prompt" do reset ou pelo botão "Salvar"
+        async function salvarAnotacao(idSessao, anotacaoTexto = null) {
+            // Se o texto não foi passado (veio do botão), pega do <input>
+            if (anotacaoTexto === null) {
+                anotacaoTexto = document.getElementById(`anotacao-${idSessao}`).value;
+            }
+            
+            try {
+                const response = await fetch(`/api/historico/${idSessao}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ anotacao: anotacaoTexto })
+                });
+                
+                if (response.ok) {
+                    console.log(`Anotação da sessão ${idSessao} salva.`);
+                    await fetchStatus(); // Atualiza a tabela para mostrar o novo texto
+                } else {
+                    console.error("Falha ao salvar anotação.");
+                }
+            } catch (error) {
+                console.error("Erro de rede:", error);
+            }
+        }
+
+        fetchStatus(); // Chama na primeira vez
+        setInterval(fetchStatus, 5000); // Atualiza a cada 5 segundos
+    </script>
+
+</body>
+</html>
